@@ -20,7 +20,7 @@ export function CreateAdModal() {
   const [gamesInput, setGamesInput] = useState("");
 
   useEffect(() => {
-    axios("http://localhost:3333/games").then((response) => {
+    axios(`${import.meta.env.VITE_API_URL}/games`).then((response) => {
       setGames(response.data);
     });
   }, []);
@@ -32,15 +32,18 @@ export function CreateAdModal() {
     const data = Object.fromEntries(formData);
 
     try {
-      await axios.post(`http://localhost:3333/games/${gamesInput}/ads`, {
-        name: data.name,
-        yearsPlaying: Number(data.yearsPlaying),
-        discord: data.discord,
-        weekDays: weekDays.map(Number),
-        hoursStart: data.hourStart,
-        hoursEnd: data.hourEnd,
-        useVoiceChannel: useVoiceChannel,
-      });
+      await axios.post(
+        `${import.meta.env.VITE_API_URL}/games/${gamesInput}/ads`,
+        {
+          name: data.name,
+          yearsPlaying: Number(data.yearsPlaying),
+          discord: data.discord,
+          weekDays: weekDays.map(Number),
+          hoursStart: data.hourStart,
+          hoursEnd: data.hourEnd,
+          useVoiceChannel: useVoiceChannel,
+        }
+      );
 
       alert("Anúncio criado com sucesso!");
     } catch (error) {

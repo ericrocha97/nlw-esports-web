@@ -2,8 +2,9 @@ import { FormEvent, useEffect, useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import * as Checkbox from "@radix-ui/react-checkbox";
 import * as ToggleGroup from "@radix-ui/react-toggle-group";
+import * as Select from "@radix-ui/react-select";
 import axios from "axios";
-import { Check, GameController } from "phosphor-react";
+import { Check, GameController, CaretDown } from "phosphor-react";
 
 import { Input } from "./Form/Input";
 
@@ -16,6 +17,7 @@ export function CreateAdModal() {
   const [games, setGames] = useState<Game[]>([]);
   const [weekDays, setWeekDays] = useState<string[]>([]);
   const [useVoiceChannel, setUseVoiceChannel] = useState(false);
+  const [gamesInput, setGamesInput] = useState("");
 
   useEffect(() => {
     axios("http://localhost:3333/games").then((response) => {
@@ -30,7 +32,7 @@ export function CreateAdModal() {
     const data = Object.fromEntries(formData);
 
     try {
-      await axios.post(`http://localhost:3333/games/${data.game}/ads`, {
+      await axios.post(`http://localhost:3333/games/${gamesInput}/ads`, {
         name: data.name,
         yearsPlaying: Number(data.yearsPlaying),
         discord: data.discord,
@@ -60,23 +62,48 @@ export function CreateAdModal() {
             <label htmlFor="game" className="font-semibold">
               Qual o game?
             </label>
-            <select
-              id="game"
-              defaultValue=""
-              name="game"
-              className="bg-zinc-900 py-3 px-4 rounded text-sm placeholder:text-zinc-500 appearance-none"
-            >
-              <option value="" disabled>
-                Selecione o game que deseja jogar
-              </option>
-              {games.map((game) => {
-                return (
-                  <option key={game.id} value={game.id}>
-                    {game.title}
-                  </option>
-                );
-              })}
-            </select>
+            <Select.Root onValueChange={setGamesInput}>
+              <Select.SelectTrigger
+                id="game"
+                name="game"
+                aria-label="Game"
+                className={`bg-zinc-900 py-3 px-4 rounded text-small flex justify-between ${
+                  gamesInput ? "text-white" : "text-zinc-500"
+                }`}
+              >
+                <Select.SelectValue placeholder="Selecione o game que deseja jogar" />
+                <Select.SelectIcon>
+                  <CaretDown size={24} className="text-zinc-400" />
+                </Select.SelectIcon>
+              </Select.SelectTrigger>
+              <Select.SelectPortal>
+                <Select.SelectContent className="bg-zinc-900 rounded overflow-hidden">
+                  <Select.SelectScrollUpButton>
+                    <CaretDown size={24} />
+                  </Select.SelectScrollUpButton>
+                  <Select.SelectViewport className="py-2 px-1">
+                    <Select.SelectGroup>
+                      {games.map((game) => {
+                        return (
+                          <Select.SelectItem
+                            key={game.id}
+                            className="flex items-center justify-between py-2 px-3 m-1 bg-zinc-900 text-zinc-500 cursor-pointer rounded hover:bg-zinc-800 hover:text-white"
+                            value={game.id}
+                          >
+                            <Select.SelectItemText>
+                              {game.title}
+                            </Select.SelectItemText>
+                            <Select.SelectItemIndicator>
+                              <Check size={24} className="text-emerald-500" />
+                            </Select.SelectItemIndicator>
+                          </Select.SelectItem>
+                        );
+                      })}
+                    </Select.SelectGroup>
+                  </Select.SelectViewport>
+                </Select.SelectContent>
+              </Select.SelectPortal>
+            </Select.Root>
           </div>
 
           <div className="flex flex-col gap-2">
